@@ -321,13 +321,6 @@ class MarketFinder:
                     if end_time <= now:
                         continue  # Already expired
 
-                    # Check event start time - market should have started
-                    event_start_str = mkt.get("eventStartTime", "") or event.get("startTime", "")
-                    if event_start_str:
-                        event_start = datetime.fromisoformat(event_start_str.replace("Z", "+00:00"))
-                        if event_start > now:
-                            continue  # Not started yet
-
                     # Found active market!
                     return self._parse_market(mkt, event)
 
