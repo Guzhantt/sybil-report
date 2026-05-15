@@ -232,8 +232,8 @@ class MarketFinder:
         self._current_snapshot: Optional[MarketSnapshot] = None
         self._last_market_fetch: float = 0
         self._last_book_fetch: float = 0
-        self._market_cache_ttl: float = 10.0  # Refetch market identity every 10s
-        self._book_cache_ttl: float = 1.5     # Refetch orderbook every 1.5s
+        self._market_cache_ttl: float = 30.0  # Refetch market identity every 30s
+        self._book_cache_ttl: float = 5.0     # Refetch orderbook every 5s
 
         # Historical spread tracking
         self._spread_history: list[float] = []
@@ -329,10 +329,10 @@ class MarketFinder:
 
         except httpx.HTTPStatusError as e:
             logger.error(f"Gamma API HTTP error: {e.response.status_code}")
-            return None
+            return self._current_snapshot  # Return stale cache on error
         except Exception as e:
-            logger.error(f"Error fetching market: {e}")
-            return None
+            logger.error(f"Error fetching market: {type(e).__name__}: {e}")
+            return self._current_snapshot  # Return stale cache on error
 
     async def _fallback_search(self) -> Optional[MarketSnapshot]:
         """Fallback search for BTC 5m markets."""
@@ -481,7 +481,7 @@ class MarketFinder:
             return Orderbook(bids=bids, asks=asks, timestamp=time.time())
 
         except Exception as e:
-            logger.warning(f"Orderbook fetch failed for {token_id[:20]}...: {e}")
+            logger.warning(f"Orderbook fetch failed: {type(e).__name__}: {e}")
             return Orderbook(timestamp=time.time())
 
     # ─── Analytics ────────────────────────────────────────────────────────

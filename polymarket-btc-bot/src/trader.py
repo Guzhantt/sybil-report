@@ -83,7 +83,7 @@ class Trader:
         self._running = False
         self._session: Optional[WindowSession] = None
         self._stats = TraderStats()
-        self._tick_interval = 1.5
+        self._tick_interval = 5.0  # 5 seconds between ticks (avoid rate limit)
 
         self.client.on_fill(self._on_fill)
 
