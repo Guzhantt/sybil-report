@@ -287,14 +287,14 @@ class MarketFinder:
         client = await self._get_client()
 
         try:
-            # Query by series slug
+            # Query by series slug - descending to get NEWEST markets first
             params = {
                 "active": "true",
                 "closed": "false",
                 "series_slug": SERIES_SLUG,
                 "limit": "5",
                 "order": "endDate",
-                "ascending": "true",
+                "ascending": "false",
             }
 
             response = await client.get(f"{self.gamma_api_url}/events", params=params)
@@ -306,8 +306,12 @@ class MarketFinder:
             for event in events:
                 markets = event.get("markets", [])
                 for mkt in markets:
-                    if not mkt.get("acceptingOrders", False):
-                        continue
+                    # Check if market is accepting orders
+                    accepting = mkt.get("acceptingOrders", False) or mkt.get("enableOrderBook", False)
+                    if not accepting:
+                        # Also check if it has orderbook enabled at event level
+                        if not event.get("enableOrderBook", False):
+                            continue
 
                     end_str = mkt.get("endDate", "")
                     if not end_str:
@@ -315,9 +319,16 @@ class MarketFinder:
 
                     end_time = datetime.fromisoformat(end_str.replace("Z", "+00:00"))
                     if end_time <= now:
-                        continue
+                        continue  # Already expired
 
-                    # Found active market
+                    # Check event start time - market should have started
+                    event_start_str = mkt.get("eventStartTime", "") or event.get("startTime", "")
+                    if event_start_str:
+                        event_start = datetime.fromisoformat(event_start_str.replace("Z", "+00:00"))
+                        if event_start > now:
+                            continue  # Not started yet
+
+                    # Found active market!
                     return self._parse_market(mkt, event)
 
             # Fallback: direct market search

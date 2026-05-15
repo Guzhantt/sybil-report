@@ -106,8 +106,8 @@ class RiskConfig:
     mm_inventory_skew_start: float = field(default_factory=lambda: _env_float("MM_INVENTORY_SKEW_START", 15.0))
 
     # Directional
-    dir_max_position: float = field(default_factory=lambda: _env_float("DIR_MAX_POSITION", 50.0))
-    dir_max_total: float = field(default_factory=lambda: _env_float("DIR_MAX_TOTAL", 100.0))
+    dir_max_position: float = field(default_factory=lambda: _env_float("DIR_MAX_POSITION", 20.0))
+    dir_max_total: float = field(default_factory=lambda: _env_float("DIR_MAX_TOTAL", 50.0))
     dir_stop_loss_pct: float = field(default_factory=lambda: _env_float("DIR_STOP_LOSS_PCT", 0.20))
     dir_take_profit_pct: float = field(default_factory=lambda: _env_float("DIR_TAKE_PROFIT_PCT", 0.40))
 

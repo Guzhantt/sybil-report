@@ -154,7 +154,7 @@ class PolymarketClient:
         self._fill_callbacks: list = []
 
         # Paper trading state
-        self._paper_balance: float = 1000.0
+        self._paper_balance: float = 100.0
         self._paper_positions: dict[str, float] = defaultdict(float)  # token_id → shares
 
     # ─── Initialization ───────────────────────────────────────────────
