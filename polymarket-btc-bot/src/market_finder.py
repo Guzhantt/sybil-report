@@ -241,9 +241,12 @@ class MarketFinder:
 
     async def _get_client(self) -> httpx.AsyncClient:
         if self._client is None or self._client.is_closed:
+            import os
+            proxy = os.getenv("HTTPS_PROXY") or os.getenv("https_proxy") or os.getenv("HTTP_PROXY") or os.getenv("http_proxy")
             self._client = httpx.AsyncClient(
                 timeout=8.0,
                 limits=httpx.Limits(max_connections=10, max_keepalive_connections=5),
+                proxy=proxy,
             )
         return self._client
 
